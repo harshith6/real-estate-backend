@@ -58,7 +58,13 @@ public class UserService {
         }).orElse(false);
     }
 
-    public Optional<User> findByEmailAndPassword(String username, String password) {
-        return userRepository.findByEmailAndPassword(username, password);
+    /**
+     * Authenticate user by email and password
+     * @param email user's email
+     * @param password user's password
+     * @return Optional containing the user if found, empty otherwise
+     */
+    public Optional<User> findByEmailAndPassword(String email, String password) {
+        return userRepository.findByEmailAndPassword(email, password);
     }
 }
