@@ -1,31 +1,5 @@
 version: '3.8'
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql-estate
-    restart: always
-    environment:
-      MYSQL_DATABASE: estate
-      MYSQL_USER: estate_user
-      MYSQL_PASSWORD: estate_pass
-      MYSQL_ROOT_PASSWORD: root_pass
-    ports:
-      - "3306:3306"
-    volumes:
-      - ./mysql_data:/var/lib/mysql
-#  app:
-#    build: .
-#    container_name: estate-app
-#    restart: always
-#    ports:
-#      - "8080:8080"
-#    #    depends_on:
-##      mysql:
-##        condition: service_healthy
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/estate
-#      SPRING_DATASOURCE_USERNAME: estate_user
-#      SPRING_DATASOURCE_PASSWORD: estate_pass
 #  mysql:
 #    image: mysql:8.0
 #    container_name: mysql-estate
@@ -39,8 +13,54 @@ services:
 #      - "3306:3306"
 #    volumes:
 #      - ./mysql_data:/var/lib/mysql
-#    healthcheck:
-#      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
+  estate-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: real-estate-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/estate
+      SPRING_DATASOURCE_USERNAME: estate_user
+      SPRING_DATASOURCE_PASSWORD: estate_pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - real-estate-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-estate
+    restart: always
+    environment:
+      MYSQL_DATABASE: estate
+      MYSQL_USER: estate_user
+      MYSQL_PASSWORD: estate_pass
+      MYSQL_ROOT_PASSWORD: root_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - real-estate-network
+
+networks:
+  real-estate-network:
+    external: true
+
