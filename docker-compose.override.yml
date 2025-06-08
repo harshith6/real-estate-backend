@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: estate-app
+    container_name: real-estate-backend
     restart: always
     ports:
       - "8080:8080"
