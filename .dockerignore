@@ -1,0 +1,14 @@
+target/
+*.jar
+*.war
+*.class
+*.log
+*.tmp
+node_modules/
+.DS_Store
+.idea/
+.vscode/
+*.iml
+*.swp
+mysql_data/
+
